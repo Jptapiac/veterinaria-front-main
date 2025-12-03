@@ -1,6 +1,7 @@
 import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { useToast } from './ToastContext'
 import { api, type Appointment as ApiAppointment, type Vet as ApiVet } from '../services/backendApi'
+import { listVets, listAppointments } from '../services/fakeApi'
 import { useAuth } from './AuthContext'
 
 type AppointmentsContextValue = {
@@ -31,15 +32,17 @@ export function AppointmentsProvider({ children }: { children: ReactNode }) {
 			setVets(vs)
 			setAppointments(aps)
 		} catch (err) {
-			console.error('Error fetching vets/appointments, using fakeApi fallback:', err)
+			// Fallback to fakeApi in demo/offline mode
 			try {
-				const vs = await api.vets()
+				const vs = await listVets()
+				const aps = await listAppointments()
 				setVets(vs)
-			} catch (e) {
-				console.error('Vets API failed:', e)
+				setAppointments(aps)
+			} catch (e2) {
+				// Final fallback: empty state
 				setVets([])
+				setAppointments([])
 			}
-			setAppointments([])
 		}
 	}
 	useEffect(() => {
@@ -95,11 +98,10 @@ export function AppointmentsProvider({ children }: { children: ReactNode }) {
 							reason: input.reason,
 							dateTime: input.dateISO,
 							status: 'PROGRAMADA'
-						}
-						// in a real scenario, we'd persist this to localStorage via fakeApi
-						// for now, just return the fake appointment and notify
-						await refresh()
-						show({ title: 'Cita creada (modo demo)', variant: 'success' })
+							}
+							// for now, just return the fake appointment and notify
+							await refresh()
+							show({ title: 'Cita creada (modo demo)', variant: 'success' })
 						return fakeApt
 					} catch (e2) {
 						const msg = typeof e?.message === 'string' ? e.message : 'No se pudo crear la cita'

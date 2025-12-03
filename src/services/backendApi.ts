@@ -5,7 +5,8 @@ const inferProdApi = () => {
 			return 'https://veterinaria-api-production.up.railway.app'
 		}
 	}
-	return 'http://localhost:4001'
+	// Demo mode: use unreachable port to force fakeApi fallback everywhere
+	return 'http://localhost:9999'
 }
 
 const BASE_URL = import.meta.env.VITE_API_URL || inferProdApi()
@@ -21,12 +22,17 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
 		...(init?.headers ? (init.headers as Record<string, string>) : {}),
 		...(authHeaders() as Record<string, string>)
 	}
-	const res = await fetch(`${BASE_URL}${path}`, { ...init, headers: merged })
-	if (!res.ok) {
-		const txt = await res.text().catch(() => '')
-		throw new Error(txt || `HTTP ${res.status}`)
+	try {
+		const res = await fetch(`${BASE_URL}${path}`, { ...init, headers: merged, signal: AbortSignal.timeout(2000) })
+		if (!res.ok) {
+			const txt = await res.text().catch(() => '')
+			throw new Error(txt || `HTTP ${res.status}`)
+		}
+		return (await res.json()) as T
+	} catch (e) {
+		// Silently fail network errors; contexts will fallback to fakeApi
+		throw new Error('Backend unavailable - using demo mode')
 	}
-	return (await res.json()) as T
 }
 
 export type ApiUser = { id: string; name: string; email: string; role: 'CLIENTE' | 'RECEPCIONISTA' | 'VETERINARIO' | 'ADMIN'; phone?: string }

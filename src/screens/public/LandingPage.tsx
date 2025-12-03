@@ -69,7 +69,6 @@ export function LandingPage() {
 				try {
 					const fakeSlots = getAvailableSlots(v.id, date)
 					const filtered = fakeSlots.filter((slot) => dayjs(slot).hour() >= 9)
-					console.log(`[LandingPage] Vet ${v.id}: got ${fakeSlots.length} fake slots, after filter: ${filtered.length}`, filtered.map((s) => s.substring(11, 16)))
 					map[v.id] = filtered
 				} catch (e) {
 					// If fakeApi fails for some reason, try the backend as a fallback.
@@ -77,7 +76,6 @@ export function LandingPage() {
 						const s = await api.slots(v.id, date)
 						map[v.id] = (s || []).filter((slot) => dayjs(slot).hour() >= 9)
 					} catch (e2) {
-						console.error(`Both fakeApi and backend failed for vet ${v.id}:`, e, e2)
 						map[v.id] = []
 					}
 				}
@@ -229,13 +227,21 @@ export function LandingPage() {
 		}
 	}
 
-	return (
-		<div className="relative min-h-screen">
-			<video className="fixed inset-0 h-screen w-screen object-cover" autoPlay muted loop playsInline>
-				<source src="/video-fondo.mp4" type="video/mp4" />
-			</video>
-			<div className="fixed inset-0 bg-black/50" />
-			<div className="fixed inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/60" />
+return (
+    <div className="relative min-h-screen">
+        
+        {/* Fondo de imagen en vez del video */}
+        <div
+            className="fixed inset-0 h-screen w-screen bg-cover bg-center"
+            style={{ backgroundImage: "url('/perrito.jpg')" }}
+        />
+
+        {/* Capas oscuras para que se vea profesional */}
+        <div className="fixed inset-0 bg-black/50" />
+        <div className="fixed inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/60" />
+
+        {/* Aquí continúa tu contenido normal */}
+
 
 			<section className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-10 lg:grid-cols-2">
 				<div className="flex flex-col justify-center text-white">

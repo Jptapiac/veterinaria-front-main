@@ -27,13 +27,11 @@ export function PetsManagementProvider({ children }: { children: ReactNode }) {
 			const ps = await api.pets()
 			setPets(ps)
 		} catch (err: any) {
-			console.error('Error fetching pets, using fake API:', err)
-			// fallback to fakeApi
+			// Silent fallback to fakeApi
 			try {
 				const ps = await fakeApi.listPets()
 				setPets(ps as Pet[])
 			} catch (fakeErr) {
-				console.error('FakeAPI also failed, using empty list:', fakeErr)
 				setPets([])
 			}
 		}

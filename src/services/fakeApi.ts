@@ -158,13 +158,11 @@ export function getAvailableSlots(vetId: ID, dateISO: string): string[] {
 		const slot = date.hour(h).format('YYYY-MM-DDTHH:mm:ss.SSSZ')
 		slots.push(slot)
 	}
-	console.log(`[fakeApi] Vet ${vetId} hours ${startHour}-${endHour}: generated ${slots.length} slots for ${dateISO}:`, slots.map((s) => s.substring(11, 16)))
 
 	const booked = new Set(
 		db.appointments.filter((a) => a.vetId === vetId && dayjs(a.dateTime).isSame(dateISO, 'day')).map((a) => dayjs(a.dateTime).format('YYYY-MM-DDTHH:mm:ss.SSSZ'))
 	)
 	const result = slots.filter((s) => !booked.has(s))
-	console.log(`[fakeApi] After filtering booked for vet ${vetId}:`, result.map((s) => s.substring(11, 16)))
 	return result
 }
 export async function listAppointments() {
